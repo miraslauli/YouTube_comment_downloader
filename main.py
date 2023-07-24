@@ -11,7 +11,7 @@ channel_id = ""
 
 def get_channel_comments(channel_id: str) -> list:
     comments = []
-    nextPageToken = None
+    next_page_token = None
 
     while True:
         try:
@@ -19,27 +19,29 @@ def get_channel_comments(channel_id: str) -> list:
                 part=['id', 'snippet'],
                 allThreadsRelatedToChannelId=channel_id,
                 maxResults=100,
-                pageToken=nextPageToken,
+                pageToken=next_page_token,
             ).execute()
 
             for item in response["items"]:
                 video_id = item["snippet"]["videoId"]
+                comment_snippet = item["snippet"]["topLevelComment"]["snippet"]
                 comment_info = {
                     "comment_id": item["id"],
                     "video_id": video_id,
-                    "author_display_name": item["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
-                    "author_channel_url": item["snippet"]["topLevelComment"]["snippet"]["authorChannelUrl"],
-                    "text_display": item["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
-                    "text_original": item["snippet"]["topLevelComment"]["snippet"]["textOriginal"],
-                    "like_count": item["snippet"]["topLevelComment"]["snippet"]["likeCount"],
-                    "published_at": item["snippet"]["topLevelComment"]["snippet"]["publishedAt"],
-                    "viewer_rating": item["snippet"]["topLevelComment"]["snippet"]["viewerRating"],
+                    "author_display_name": comment_snippet["authorDisplayName"],
+                    "author_channel_url": comment_snippet["authorChannelUrl"],
+                    "text_display": comment_snippet["textDisplay"],
+                    "text_original": comment_snippet["textOriginal"],
+                    "like_count": comment_snippet["likeCount"],
+                    "published_at": comment_snippet["publishedAt"],
+                    "viewer_rating": comment_snippet["viewerRating"],
                     "total_reply_count": item["snippet"]["totalReplyCount"],
                 }
+
                 comments.append(comment_info)
 
-            nextPageToken = response.get("nextPageToken")
-            if not nextPageToken:
+            next_page_token = response.get("nextPageToken")
+            if not next_page_token:
                 break
 
         except TimeoutError:
