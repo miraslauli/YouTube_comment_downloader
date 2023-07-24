@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 
 API_KEY = ""
 youtube = build("youtube", "v3", developerKey=API_KEY)
-channel_id = ""
+CHANNEL_ID = ""
 
 
 def get_channel_comments(channel_id: str) -> list:
@@ -119,6 +119,6 @@ def save_comments_to_excel(comments: list, file_name: str) -> None:
 
 
 if __name__ == "__main__":
-    comments = get_channel_comments(channel_id)
+    comments = get_channel_comments(CHANNEL_ID)
     save_to_json(comments)
     save_comments_to_excel(comments, "file.xlsx")
