@@ -24,10 +24,12 @@ def get_channel_comments(channel_id: str) -> list:
 
             for item in response["items"]:
                 video_id = item["snippet"]["videoId"]
+                channel_name = get_video_channel_name(video_id)
                 comment_snippet = item["snippet"]["topLevelComment"]["snippet"]
                 comment_info = {
                     "comment_id": item["id"],
                     "video_id": video_id,
+                    "channel_name": channel_name,
                     "author_display_name": comment_snippet["authorDisplayName"],
                     "author_channel_url": comment_snippet["authorChannelUrl"],
                     "text_display": comment_snippet["textDisplay"],
@@ -55,6 +57,21 @@ def get_channel_comments(channel_id: str) -> list:
     return comments
 
 
+def get_video_channel_name(video_id: str) -> str:
+    try:
+        response = youtube.videos().list(
+            part='snippet',
+            id=video_id
+        ).execute()
+
+        channel_name = response['items'][0]['snippet']['channelTitle']
+        return channel_name
+
+    except Exception as exc:
+        print(f'Error fetching channel name: {exc}')
+        return ''
+
+
 def save_to_json(comments: list) -> None:
     with open("file.json", 'w', encoding='utf-8') as json_file:
         json.dump(comments, json_file, ensure_ascii=False, indent=4)
@@ -67,6 +84,7 @@ def save_comments_to_excel(comments: list, file_name: str) -> None:
     column_names = [
         "Comment ID",
         "Video ID",
+        "Channel Name",
         "Author Display Name",
         "Author Channel URL",
         "Text Display",
@@ -84,14 +102,15 @@ def save_comments_to_excel(comments: list, file_name: str) -> None:
         for idx, comment in enumerate(comments, start=2):
             sheet.cell(row=idx, column=1, value=comment["comment_id"])
             sheet.cell(row=idx, column=2, value=comment["video_id"])
-            sheet.cell(row=idx, column=3, value=comment["author_display_name"])
-            sheet.cell(row=idx, column=4, value=comment["author_channel_url"])
-            sheet.cell(row=idx, column=5, value=comment["text_display"])
-            sheet.cell(row=idx, column=6, value=comment["text_original"])
-            sheet.cell(row=idx, column=7, value=comment["like_count"])
-            sheet.cell(row=idx, column=8, value=comment["published_at"])
-            sheet.cell(row=idx, column=9, value=comment["viewer_rating"])
-            sheet.cell(row=idx, column=10, value=comment["total_reply_count"])
+            sheet.cell(row=idx, column=3, value=comment["channel_name"])
+            sheet.cell(row=idx, column=4, value=comment["author_display_name"])
+            sheet.cell(row=idx, column=5, value=comment["author_channel_url"])
+            sheet.cell(row=idx, column=6, value=comment["text_display"])
+            sheet.cell(row=idx, column=7, value=comment["text_original"])
+            sheet.cell(row=idx, column=8, value=comment["like_count"])
+            sheet.cell(row=idx, column=9, value=comment["published_at"])
+            sheet.cell(row=idx, column=10, value=comment["viewer_rating"])
+            sheet.cell(row=idx, column=11, value=comment["total_reply_count"])
         workbook.save(file_name)
 
     except Exception as exc:
