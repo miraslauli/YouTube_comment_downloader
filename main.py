@@ -24,12 +24,12 @@ def get_channel_comments(channel_id: str) -> list:
 
             for item in response["items"]:
                 video_id = item["snippet"]["videoId"]
-                channel_name = get_video_channel_name(video_id)
+                # channel_name = get_video_channel_name(video_id)
                 comment_snippet = item["snippet"]["topLevelComment"]["snippet"]
                 comment_info = {
                     "comment_id": item["id"],
                     "video_id": video_id,
-                    "channel_name": channel_name,
+                    # "channel_name": channel_name,
                     "author_display_name": comment_snippet["authorDisplayName"],
                     "author_channel_url": comment_snippet["authorChannelUrl"],
                     "text_display": comment_snippet["textDisplay"],
@@ -57,19 +57,19 @@ def get_channel_comments(channel_id: str) -> list:
     return comments
 
 
-def get_video_channel_name(video_id: str) -> str:
-    try:
-        response = youtube.videos().list(
-            part='snippet',
-            id=video_id
-        ).execute()
-
-        channel_name = response['items'][0]['snippet']['channelTitle']
-        return channel_name
-
-    except Exception as exc:
-        print(f'Error fetching channel name: {exc}')
-        return ''
+# def get_video_channel_name(video_id: str) -> str:
+#     try:
+#         response = youtube.videos().list(
+#             part='snippet',
+#             id=video_id
+#         ).execute()
+#
+#         channel_name = response['items'][0]['snippet']['channelTitle']
+#         return channel_name
+#
+#     except Exception as exc:
+#         print(f'Error fetching channel name: {exc}')
+#         return ''
 
 
 def save_to_json(comments: list) -> None:
@@ -84,7 +84,7 @@ def save_comments_to_excel(comments: list, file_name: str) -> None:
     column_names = [
         "Comment ID",
         "Video ID",
-        "Channel Name",
+        # "Channel Name",
         "Author Display Name",
         "Author Channel URL",
         "Text Display",
@@ -102,7 +102,7 @@ def save_comments_to_excel(comments: list, file_name: str) -> None:
         for idx, comment in enumerate(comments, start=2):
             sheet.cell(row=idx, column=1, value=comment["comment_id"])
             sheet.cell(row=idx, column=2, value=comment["video_id"])
-            sheet.cell(row=idx, column=3, value=comment["channel_name"])
+            # sheet.cell(row=idx, column=3, value=comment["channel_name"])
             sheet.cell(row=idx, column=4, value=comment["author_display_name"])
             sheet.cell(row=idx, column=5, value=comment["author_channel_url"])
             sheet.cell(row=idx, column=6, value=comment["text_display"])
